@@ -1,6 +1,6 @@
 const RESP = require("../../response/RESP");
-const {OPERATION, PERMISSIONS, ROLE} = require('./statics');
-const {model} = require("mongoose");
+const { OPERATION, PERMISSIONS, ROLE, CONVERSATION_TYPE } = require('./statics');
+const { model } = require("mongoose");
 
 /** @memberOf Conversation# */
 module.exports.getMembersCount = function () {
@@ -44,7 +44,7 @@ module.exports.delete = async function (username) {
 module.exports.addMember = async function (username, member_username) {
     this.checkAccess(username, OPERATION.ADD_MEMBER)
     this.checkMemberNotExist(member_username);
-    this.members.push({username: member_username, role: ROLE.USER});
+    this.members.push({ username: member_username, role: ROLE.USER });
     this.save();
 }
 
@@ -58,7 +58,7 @@ module.exports.removeMember = async function (username, member_username) {
 
 /** @memberOf Conversation# */
 module.exports.setMemberRole = async function (username, member_username, new_role) {
-    this.checkAccess(username,OPERATION[`SET_MEMBER_ROLE_TO_${new_role.toUpperCase()}`]);
+    this.checkAccess(username, OPERATION[`SET_MEMBER_ROLE_TO_${new_role.toUpperCase()}`]);
     this.checkMemberExist(member_username);
     this.getMember(member_username).role = new_role;
     this.save();
@@ -73,9 +73,22 @@ module.exports.getMessagesCount = function () {
     return this.messages.length;
 }
 
+
 /** @memberOf Conversation# */
-module.exports.getMessages = async function (offset=0,limit=0) {
-    const message_ids = this.messages.slice(offset,limit ? offset + limit : undefined);
+module.exports.markAsDelivered = async function () {
+    this.undeliveredMessagesCount = 0;
+    this.save();
+}
+
+/** @memberOf Conversation# */
+module.exports.markAsSeen = async function () {
+    this.unreadMessagesCount = 0;
+    this.save();
+}
+
+/** @memberOf Conversation# */
+module.exports.getMessages = async function (offset = 0, limit = 0) {
+    const message_ids = this.messages.slice(offset, limit ? offset + limit : undefined);
     return await model('Message').findByIds(message_ids);
 };
 
@@ -84,6 +97,8 @@ module.exports.addMessage = async function (username, message) {
     this.checkAccess(username, OPERATION.ADD_MESSAGE);
     const newMessage = await model('Message').addMessage(username, message);
     this.messages.push(newMessage._id);
+    this.unreadMessagesCount++;
+    this.undeliveredMessagesCount = this.type !== CONVERSATION_TYPE.PRIVATE ? this.undeliveredMessagesCount + 1 : 0;
     this.save();
 }
 
@@ -91,16 +106,16 @@ module.exports.addMessage = async function (username, message) {
 module.exports.removeMessage = async function (username, message_id) {
     const message = await getMessage(message_id);
     if (!message) throw RESP.MESSAGE_NOT_FOUND;
-    this.checkAccess(username , username === message.owner ? OPERATION.REMOVE_OWN_MESSAGE : OPERATION.REMOVE_MESSAGE);
+    this.checkAccess(username, username === message.owner ? OPERATION.REMOVE_OWN_MESSAGE : OPERATION.REMOVE_MESSAGE);
     await model('Message').removeMessage(message_id);
     this.messages = this.messages.filter(m => m !== message_id);
     this.save();
 }
 
 /** @memberOf Conversation# */
-module.exports.updateMessage = async function (message_id,username, updatedMessage) {
+module.exports.updateMessage = async function (message_id, username, updatedMessage) {
     const message = await getMessage(message_id);
     if (!message) throw RESP.MESSAGE_NOT_FOUND;
-    this.checkAccess(username,username === message.owner ? OPERATION.UPDATE_OWN_MESSAGE : OPERATION.UPDATE_MESSAGE);
+    this.checkAccess(username, username === message.owner ? OPERATION.UPDATE_OWN_MESSAGE : OPERATION.UPDATE_MESSAGE);
     await message.updateMessage(updatedMessage);
 }

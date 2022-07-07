@@ -4,8 +4,8 @@ const RESP = require('../response/RESP');
 
 module.exports.getMessages = async (req, res, next) => {
     try {
-        const {user, conversation} = req;
-        const {offset, limit} = req.query;
+        const { user, conversation } = req;
+        const { offset, limit } = req.query;
         const messages = await conversation.getMessages(offset || 0, limit || 0);
         return res.status(200).json(messages);
     } catch (err) {
@@ -15,8 +15,8 @@ module.exports.getMessages = async (req, res, next) => {
 
 module.exports.addMessage = async (req, res, next) => {
     try {
-        const {user, conversation} = req;
-        const {message} = req.body;
+        const { user, conversation } = req;
+        const { message } = req.body;
         await conversation.addMessage(user.username, message);
         return next(RESP.MESSAGE_ADDED);
     } catch (err) {
@@ -26,8 +26,8 @@ module.exports.addMessage = async (req, res, next) => {
 
 module.exports.removeMessage = async (req, res, next) => {
     try {
-        const {user, conversation} = req;
-        const {message_id} = req.params;
+        const { user, conversation } = req;
+        const { message_id } = req.params;
         await conversation.removeMessage(user.username, message_id);
         return next(RESP.MESSAGE_DELETED);
     } catch (err) {
@@ -37,9 +37,9 @@ module.exports.removeMessage = async (req, res, next) => {
 
 module.exports.updateMessage = async (req, res, next) => {
     try {
-        const {user, conversation} = req;
-        const {message_id} = req.params;
-        const {message} = req.body;
+        const { user, conversation } = req;
+        const { message_id } = req.params;
+        const { message } = req.body;
         await conversation.updateMessage(message_id, user.username, message);
         return next(RESP.MESSAGE_UPDATED);
     } catch (err) {
