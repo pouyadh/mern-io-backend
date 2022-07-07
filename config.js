@@ -27,3 +27,5 @@ exports.tokenConfig = {
   secret: process.env.TOKEN_SECRET_KEY || "ThisIsTheFallbackSecret",
   expiresIn: process.env.TOKEN_EXPIRES_IN || "2h",
 };
+
+exports.debug = process.env.DEBUG;
