@@ -15,7 +15,7 @@ const auth = require("./middleware/auth");
 const socket = require("socket.io");
 const cookieParserIo = require("./middleware/cookie-parser-io");
 const authIo = require("./middleware/auth-io");
-const conversationHandlers = require("./handlers/conversationHandlers");
+const ioHandler = require('./handlers/ioHandler');
 const colors = require("colors");
 const path = require("path");
 const errorHandler = require('./middleware/error-handler');
@@ -61,9 +61,4 @@ const io = socket(server, socketConfig.options);
 io.use(cookieParserIo());
 io.use(authIo(tokenConfig.secret));
 
-const { handleJoin, handleDisconnect, handleMessage } = conversationHandlers;
-io.on("connection", (socket) => {
-  socket.on("join", handleJoin);
-  socket.on("disconnect", handleDisconnect);
-  socket.on("msg", handleMessage);
-});
+ioHandler.registerEvents(io);
