@@ -97,6 +97,7 @@ module.exports.addMessage = async function (username, message) {
     this.checkAccess(username, OPERATION.ADD_MESSAGE);
     const newMessage = await model('Message').addMessage(username, message);
     this.messages.push(newMessage._id);
+    this.lastMessage = newMessage._id;
     this.unreadMessagesCount++;
     this.undeliveredMessagesCount = this.type !== CONVERSATION_TYPE.PRIVATE ? this.undeliveredMessagesCount + 1 : 0;
     this.save();
