@@ -1,5 +1,6 @@
 const APIResponse = require('./APIResponse');
 const RESP = {
+    SUCCESS_NO_CONTENT: APIResponse.noContent(),
     INVALID_USERNAME: APIResponse.badRequest("Invalid username"),
     INVALID_CREDENTIALS: APIResponse.forbidden("Invalid credentials"),
     INVALID_EMAIL: APIResponse.badRequest("Invalid Email"),

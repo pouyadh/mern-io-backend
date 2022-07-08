@@ -4,7 +4,6 @@ function attachUserRole(req, res, next) {
     const { conversation } = req;
     const userAsMember = conversation.getMemberByUsername(username);
     if (!userAsMember) return next(RESP.NOT_MEMBER);
-    req.userRole = userAsMember.role;
     next();
 }
 
