@@ -26,6 +26,7 @@ const conversationSchema = new mongoose.Schema(
         creator: { type: String, required: true, validate: isUser },
         unreadMessagesCount: { type: Number, default: 0 },
         undeliveredMessagesCount: { type: Number, default: 0 },
+        lastMessage: [String],
         meta: { type: Map, of: String },
     },
     {
