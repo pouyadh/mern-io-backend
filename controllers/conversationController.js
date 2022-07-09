@@ -7,8 +7,8 @@ const { CONVERSATION_TYPE } = require("../model/conversationSchema/statics");
 module.exports.getConversations = async (req, res, next) => {
   try {
     const { user } = req;
-    const conversation = await Conversation.findByUsername(user.username);
-    return res.status(200).json(conversation);
+    const conversations = await Conversation.findByUsername(user.username);
+    return res.status(200).json(conversations);
   } catch (err) {
     next(err);
   }
