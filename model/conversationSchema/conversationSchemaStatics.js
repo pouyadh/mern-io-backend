@@ -11,24 +11,25 @@ const areUsers = async function (usernames) {
 }
 
 /** @memberOf Conversation */
-module.exports.findByUsername = async function (username) {
-    return await this.find({ "members.username": username }).populate('lastMessage');
+module.exports.findByUsername = function (username) {
+    return this.find({ "members.username": username })
 }
 
 /** @memberOf Conversation */
-module.exports.findSaveByUsername = async function (username) {
-    return await this.findOne({
+module.exports.findSaveByUsername = function (username) {
+    return this.findOne({
         type: CONVERSATION_TYPE.SAVE,
         "members.username": username,
-    }).populate('lastMessage');
+    })
 }
 
 /** @memberOf Conversation */
-module.exports.findPrivateByMembers = async function (memberUsernames) {
-    return await this.findOne({
+module.exports.findPrivateByMembers = function (memberUsernames) {
+    return this.findOne({
         type: CONVERSATION_TYPE.PRIVATE,
-        "members.username": { $in: memberUsernames },
-    }).populate('lastMessage')
+        members: { $size: 2 },
+        "members.username": { $all: memberUsernames },
+    })
 }
 
 /** @memberOf Conversation */

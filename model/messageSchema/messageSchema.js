@@ -6,6 +6,7 @@ const messageSchema = new mongoose.Schema({
     message: String,
     owner: String,
     updated: { type: Boolean, default: false },
+    deliveredTo: [String],
 }, {
     timestamps: true,
     statics: messageSchemaStatics,

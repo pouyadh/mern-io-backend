@@ -18,6 +18,11 @@ module.exports.getMember = function (username) {
 }
 
 /** @memberOf Conversation# */
+module.exports.getMembersExcept = function (username) {
+    return this.members.filter(m => m.username !== username);
+}
+
+/** @memberOf Conversation# */
 module.exports.checkMemberExist = function (username) {
     if (!this.isMember(username)) throw RESP.MEMBER_NOT_FOUND;
 }
@@ -73,17 +78,14 @@ module.exports.getMessagesCount = function () {
     return this.messages.length;
 }
 
-
 /** @memberOf Conversation# */
-module.exports.markAsDelivered = async function () {
-    this.undeliveredMessagesCount = 0;
-    this.save();
-}
-
-/** @memberOf Conversation# */
-module.exports.markAsSeen = async function () {
-    this.unreadMessagesCount = 0;
-    this.save();
+module.exports.specializeForUser = function (username) {
+    let { _id, lastMessage, type, name, members, updatedAt, avatarURL } = this;
+    if (type === 'GROUP' || type === 'CHANNEL') name = name || 'No name';
+    if (type === 'SAVE') name = 'Saved Messages';
+    if (type === 'PRIVATE') name = members.find(m => m.username !== username).username;
+    let unreadMessagesCount = this.getMember(username).unreadMessages.length;
+    return { _id, name, lastMessage, unreadMessagesCount, updatedAt, avatarURL };
 }
 
 /** @memberOf Conversation# */
@@ -98,8 +100,10 @@ module.exports.addMessage = async function (username, message) {
     const newMessage = await model('Message').addMessage(username, message);
     this.messages.push(newMessage._id);
     this.lastMessage = newMessage._id;
-    this.unreadMessagesCount++;
-    this.undeliveredMessagesCount = this.type !== CONVERSATION_TYPE.PRIVATE ? this.undeliveredMessagesCount + 1 : 0;
+    this.getMembersExcept(username).forEach(m => {
+        m.unreadMessages.push(newMessage._id);
+        m.undeliveredMessages.push(newMessage._id);
+    });
     this.save();
 }
 

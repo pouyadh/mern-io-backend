@@ -2,7 +2,7 @@ const RESP = require('../../response/RESP');
 
 /** @memberOf Message */
 module.exports.findByIds = async function (Ids) {
-    return await this.find({ _id : { $in: Ids } });
+    return await this.find({ _id: { $in: Ids } });
 }
 
 /** @memberOf Message */
@@ -11,7 +11,7 @@ module.exports.getMessage = async function (messageId) {
 }
 
 /** @memberOf Message */
-module.exports.addMessage = async function (username,message) {
+module.exports.addMessage = async function (username, message) {
     return await this.create({
         owner: username,
         message: JSON.stringify(message),

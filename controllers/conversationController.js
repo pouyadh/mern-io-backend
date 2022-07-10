@@ -7,7 +7,8 @@ const { CONVERSATION_TYPE } = require("../model/conversationSchema/statics");
 module.exports.getConversations = async (req, res, next) => {
   try {
     const { user } = req;
-    const conversations = await Conversation.findByUsername(user.username);
+    let conversations = await Conversation.findByUsername(user.username).populate('lastMessage');
+    conversations = conversations.map(c => c.specializeForUser(user.username));
     return res.status(200).json(conversations);
   } catch (err) {
     next(err);

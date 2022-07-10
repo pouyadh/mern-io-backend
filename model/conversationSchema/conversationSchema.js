@@ -12,7 +12,9 @@ async function isUser(v) {
 const memberSchema = new mongoose.Schema(
     {
         username: { type: String, validate: isUser, required: true },
-        role: { type: String, enum: ROLES, required: true }
+        role: { type: String, enum: ROLES, required: true },
+        unreadMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+        undeliveredMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }]
     })
 
 const conversationSchema = new mongoose.Schema(
@@ -24,8 +26,6 @@ const conversationSchema = new mongoose.Schema(
         members: { type: [memberSchema], required: true },
         messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
         creator: { type: String, required: true, validate: isUser },
-        unreadMessagesCount: { type: Number, default: 0 },
-        undeliveredMessagesCount: { type: Number, default: 0 },
         lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
         meta: { type: Map, of: String },
     },
